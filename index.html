@@ -194,36 +194,35 @@
         requestAnimationFrame(updateNeedle);
     }
 
-    function spin() {
+function spin() {
+        // 1. 檢查是否正在轉動或人數不足
         if (items.length < 2 || isSpinning) return;
 
-        // --- 這裡就是添加的地方：解鎖瀏覽器音頻限制 ---
-        tickSound.play().then(() => { tickSound.pause(); tickSound.currentTime = 0; }).catch(() => {});
-        winSound.play().then(() => { winSound.pause(); winSound.currentTime = 0; }).catch(() => {});
-        // ------------------------------------------
+        // 2. 解鎖音效 (這兩行是關鍵)
+        tickSound.play().then(() => { tickSound.pause(); tickSound.currentTime = 0; }).catch(e => console.log("音效解鎖失敗:", e));
+        winSound.play().then(() => { winSound.pause(); winSound.currentTime = 0; }).catch(e => console.log("音效解鎖失敗:", e));
 
-        isSpinning = true;
-        const prize = document.getElementById('prizeName').value;
-        const spinBtn = document.getElementById('spinBtn');
-        // ... 以下原本的內容不變
-        if (items.length < 2 || isSpinning) return;
+        // 3. 開始轉動邏輯
         isSpinning = true;
         const prize = document.getElementById('prizeName').value;
         const spinBtn = document.getElementById('spinBtn');
         spinBtn.disabled = true;
 
+        // 4. 計算隨機旋轉度數 (至少轉 12 圈)
         const extraDegree = Math.floor(Math.random() * 360) + 4320;
         currentRotation += extraDegree;
         canvas.style.transform = `rotate(${currentRotation}deg)`;
         
+        // 5. 啟動指針物理擺動偵測
         requestAnimationFrame(updateNeedle);
 
+        // 6. 設定停止後的動作 (5.1秒後)
         setTimeout(() => {
             isSpinning = false;
             spinBtn.disabled = false;
             
             // 播放中獎音效
-            winSound.play().catch(()=>{});
+            winSound.play().catch(e => console.log("播放失敗"));
 
             const actualDegree = currentRotation % 360;
             const arcDegree = 360 / items.length;
