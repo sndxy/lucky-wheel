@@ -3,27 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>幸運大轉盤 - 聲效加強版</title>
+    <title>幸運大轉盤 - 專業聲效版</title>
     <style>
         :root {
+            /* 莫蘭迪淺色 */
             --bg: #f0f2f5; --card: #ffffff; --text: #334155; --primary: #6366f1; --accent: #f43f5e; --border: #e2e8f0; --wheel-border: #94a3b8; --pointer: #f59e0b;
         }
         [data-theme="dark"] {
+            /* 賽博深邃 */
             --bg: #111827; --card: #1f2937; --text: #f9fafb; --primary: #38bdf8; --accent: #818cf8; --border: #374151; --wheel-border: #38bdf8; --pointer: #fbbf24;
         }
         [data-theme="warm"] {
+            /* 暖陽焦糖 */
             --bg: #fdf6e3; --card: #ffffff; --text: #5d4037; --primary: #d4a373; --accent: #bc6c25; --border: #eee0c9; --wheel-border: #bc6c25; --pointer: #8d6e63;
         }
 
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; } 
+
         body {
             background-color: var(--bg); color: var(--text);
             font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
-            margin: 0; display: flex; justify-content: center; padding: 40px 20px; min-height: 100vh; transition: 0.4s;
+            margin: 0; transition: all 0.4s ease; display: flex; justify-content: center; padding: 40px 20px; min-height: 100vh;
         }
 
         .theme-switcher { position: fixed; top: 25px; right: 25px; display: flex; gap: 10px; z-index: 100; }
-        .theme-btn { padding: 8px 16px; border-radius: 12px; border: 2px solid var(--border); cursor: pointer; font-weight: bold; background: var(--card); color: var(--text); }
+        .theme-btn {
+            padding: 8px 16px; border-radius: 12px; border: 2px solid var(--border);
+            cursor: pointer; font-size: 0.9rem; font-weight: bold; background: var(--card); color: var(--text); transition: 0.3s;
+        }
 
         .main-container { display: flex; flex-wrap: wrap; gap: 40px; max-width: 1100px; width: 100%; justify-content: center; }
         .card { background: var(--card); padding: 25px; border-radius: 30px; border: 1px solid var(--border); box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; }
@@ -33,33 +40,59 @@
         
         canvas { width: 100%; height: 100%; border-radius: 50%; border: 10px solid var(--wheel-border); transition: transform 5s cubic-bezier(0.1, 0, 0.1, 1); background: #fff; }
         
-        .pointer-wrapper { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); z-index: 50; width: 44px; height: 65px; transform-origin: 50% 10%; }
+        .pointer-wrapper { 
+            position: absolute; top: -15px; left: 50%; transform: translateX(-50%); 
+            z-index: 50; width: 44px; height: 65px; 
+            transform-origin: 50% 10%; 
+        }
         .pointer-needle {
             width: 100%; height: 100%; background: var(--pointer); 
             clip-path: polygon(20% 0%, 80% 0%, 100% 25%, 50% 100%, 0% 25%);
             border-radius: 40% 40% 50% 50%;
             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            transition: transform 0.1s ease-out;
+            transition: transform 0.1s ease-out; 
         }
 
-        .btn-spin { background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; width: 100%; font-size: 1.5rem; padding: 18px; border-radius: 20px; border: none; cursor: pointer; font-weight: 800; }
+        .btn-spin { 
+            background: linear-gradient(135deg, var(--primary), var(--accent)); 
+            color: white; width: 100%; font-size: 1.5rem; padding: 18px; border-radius: 20px; border: none; cursor: pointer; font-weight: 800; box-shadow: 0 8px 15px rgba(0,0,0,0.1); transition: 0.3s;
+        }
+        .btn-spin:disabled { opacity: 0.6; cursor: not-allowed; }
+
         .side-section { flex: 1.2; min-width: 380px; display: flex; flex-direction: column; gap: 20px; }
-        .input-box { width: 100%; padding: 14px; border-radius: 15px; border: 2px solid var(--border); background: var(--bg); color: var(--text); margin-top: 5px; }
         
-        .history-card { background: var(--card); padding: 15px; border-radius: 20px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); }
+        .input-box { 
+            width: 100%; padding: 14px; border-radius: 15px; border: 2px solid var(--border); 
+            background: var(--bg); color: var(--text); font-size: 1rem; 
+            margin-top: 5px;
+        }
+        
+        .history-card { 
+            background: var(--card); padding: 15px; border-radius: 20px; margin-bottom: 10px; 
+            display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border);
+        }
+        .exclude-tag { background: #10b981; color: white; padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; margin-top: 4px; display: inline-block; }
         .exclude-btn { background: var(--text); color: var(--card); border: none; padding: 8px 14px; border-radius: 10px; cursor: pointer; font-weight: bold; }
 
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); display: none; justify-content: center; align-items: center; z-index: 2000; }
-        .modal { background: var(--card); padding: 40px; border-radius: 40px; text-align: center; max-width: 400px; width: 85%; border: 3px solid var(--primary); }
+        #memberList { max-height: 180px; overflow-y: auto; margin-top: 15px; }
+
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+            display: none; justify-content: center; align-items: center; z-index: 2000;
+        }
+        .modal {
+            background: var(--card); padding: 40px; border-radius: 40px; text-align: center; max-width: 400px; width: 85%; border: 3px solid var(--primary);
+        }
     </style>
 </head>
 <body>
 
 <audio id="tickSound" preload="auto">
-    <source src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" type="audio/mpeg">
+    <source src="https://www.soundjay.com/buttons/button-50.mp3" type="audio/mpeg">
 </audio>
 <audio id="winSound" preload="auto">
-    <source src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3" type="audio/mpeg">
+    <source src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3" type="audio/mpeg">
 </audio>
 
 <div class="theme-switcher">
@@ -72,7 +105,7 @@
     <div class="card wheel-section">
         <h1 style="margin:0;">幸運大轉盤</h1>
         <div class="wheel-container">
-            <div class="pointer-wrapper">
+            <div class="pointer-wrapper" id="pointerWrapper">
                 <div class="pointer-needle" id="needle"></div>
             </div>
             <canvas id="wheelCanvas" width="500" height="500"></canvas>
@@ -83,16 +116,18 @@
     <div class="side-section">
         <div class="card">
             <label style="font-weight: bold;">🎁 目前獎項名稱</label>
-            <input type="text" id="prizeName" class="input-box" value="驚喜大禮包">
+            <input type="text" id="prizeName" class="input-box" value="神秘精美小禮物">
         </div>
+
         <div class="card">
             <h3 style="margin:0;">👥 參加成員 (<span id="count">0</span>)</h3>
             <div style="display:flex; gap:10px; margin-top:10px;">
                 <input type="text" id="itemName" class="input-box" style="margin:0;" placeholder="輸入姓名...">
                 <button onclick="addItem()" style="background:var(--primary); color:white; border:none; border-radius:15px; padding:0 20px; cursor:pointer; font-weight:bold;">加入</button>
             </div>
-            <div id="memberList" style="margin-top:15px; max-height: 150px; overflow-y: auto;"></div>
+            <div id="memberList"></div>
         </div>
+
         <div class="card" style="flex:1;">
             <h3 style="margin:0;">📜 獲獎英雄榜</h3>
             <div id="historyList" style="margin-top:10px;"></div>
@@ -102,7 +137,7 @@
 
 <div class="modal-overlay" id="modalOverlay">
     <div class="modal">
-        <div style="font-size: 3rem;">🎊</div>
+        <div style="font-size: 3rem;">🎉</div>
         <h2 style="color: var(--accent);">恭喜中獎！</h2>
         <h1 id="modalWinner" style="font-size: 3rem; margin: 15px 0;"></h1>
         <p>獲得：<span id="modalPrize" style="color:var(--primary); font-weight:bold; font-size:1.4rem;"></span></p>
@@ -116,7 +151,7 @@
     const needle = document.getElementById('needle');
     const tickSound = document.getElementById('tickSound');
     const winSound = document.getElementById('winSound');
-    
+
     let items = ["小明", "阿草", "美玲", "大壯", "泡泡", "露露"];
     let currentRotation = 0;
     let isSpinning = false;
@@ -132,6 +167,7 @@
         const arc = (2 * Math.PI) / num;
         ctx.clearRect(0, 0, 500, 500);
         if (num === 0) return;
+
         items.forEach((item, i) => {
             const angle = i * arc;
             ctx.beginPath();
@@ -140,6 +176,7 @@
             ctx.moveTo(250, 250);
             ctx.arc(250, 250, 240, angle, angle + arc);
             ctx.fill();
+            
             ctx.save();
             ctx.translate(250, 250); ctx.rotate(angle + arc / 2);
             ctx.textAlign = "right"; ctx.fillStyle = "#334155";
@@ -167,7 +204,6 @@
         if (input.value) { items.push(input.value); input.value = ""; drawWheel(); }
     }
 
-    // 更新指針擺動與播放滴答聲
     function updateNeedle() {
         if (!isSpinning) return;
         
@@ -176,16 +212,13 @@
         const angle = Math.atan2(matrix.b, matrix.a) * (180 / Math.PI);
         const step = 360 / items.length;
         
-        // 判斷是否經過格線
+        // 偵測是否經過格線
         const currentSegment = Math.floor((angle + 360) % 360 / step);
         const lastSegment = Math.floor((lastPlayedAngle + 360) % 360 / step);
         
         if (currentSegment !== lastSegment) {
-            // 播放滴答聲
             tickSound.currentTime = 0;
-            tickSound.play().catch(()=>{}); // 避免瀏覽器策略阻止自動播放
-            
-            // 指針擺動效果
+            tickSound.play().catch(()=>{}); 
             needle.style.transform = "rotate(-25deg)";
             setTimeout(() => { needle.style.transform = "rotate(0deg)"; }, 50);
         }
@@ -194,35 +227,29 @@
         requestAnimationFrame(updateNeedle);
     }
 
-function spin() {
-        // 1. 檢查是否正在轉動或人數不足
+    function spin() {
         if (items.length < 2 || isSpinning) return;
 
-        // 2. 解鎖音效 (這兩行是關鍵)
-        tickSound.play().then(() => { tickSound.pause(); tickSound.currentTime = 0; }).catch(e => console.log("音效解鎖失敗:", e));
-        winSound.play().then(() => { winSound.pause(); winSound.currentTime = 0; }).catch(e => console.log("音效解鎖失敗:", e));
+        // 解鎖音效限制
+        tickSound.play().then(() => { tickSound.pause(); tickSound.currentTime = 0; }).catch(e => {});
+        winSound.play().then(() => { winSound.pause(); winSound.currentTime = 0; }).catch(e => {});
 
-        // 3. 開始轉動邏輯
         isSpinning = true;
         const prize = document.getElementById('prizeName').value;
         const spinBtn = document.getElementById('spinBtn');
         spinBtn.disabled = true;
 
-        // 4. 計算隨機旋轉度數 (至少轉 12 圈)
         const extraDegree = Math.floor(Math.random() * 360) + 4320;
         currentRotation += extraDegree;
         canvas.style.transform = `rotate(${currentRotation}deg)`;
         
-        // 5. 啟動指針物理擺動偵測
         requestAnimationFrame(updateNeedle);
 
-        // 6. 設定停止後的動作 (5.1秒後)
         setTimeout(() => {
             isSpinning = false;
             spinBtn.disabled = false;
             
-            // 播放中獎音效
-            winSound.play().catch(e => console.log("播放失敗"));
+            winSound.play().catch(e => {});
 
             const actualDegree = currentRotation % 360;
             const arcDegree = 360 / items.length;
@@ -241,7 +268,14 @@ function spin() {
         const history = document.getElementById('historyList');
         const entry = document.createElement('div');
         entry.className = 'history-card';
-        entry.innerHTML = `<div><b>${winner}</b><br><small>${prize}</small></div><button class="exclude-btn" onclick="excludeWinner('${winner}', this)">排除</button>`;
+        entry.innerHTML = `
+            <div>
+                <div style="font-size:1.1rem; font-weight:bold;">${winner}</div>
+                <div style="font-size:0.85rem; opacity:0.8;">${prize}</div>
+                <div class="tag-box"></div>
+            </div>
+            <button class="exclude-btn" onclick="excludeWinner('${winner}', this)">排除參加</button>
+        `;
         history.prepend(entry);
     }
 
@@ -250,6 +284,7 @@ function spin() {
         if (idx > -1) {
             items.splice(idx, 1);
             drawWheel();
+            btn.parentElement.querySelector('.tag-box').innerHTML = `<span class="exclude-tag">✓ 已從名單排除</span>`;
             btn.innerText = "已排除";
             btn.disabled = true;
             btn.style.opacity = "0.5";
@@ -259,6 +294,7 @@ function spin() {
     function closeModal() { document.getElementById('modalOverlay').style.display = 'none'; }
 
     drawWheel();
+    document.getElementById('itemName').addEventListener('keypress', e => e.key === 'Enter' && addItem());
 </script>
 
 </body>
