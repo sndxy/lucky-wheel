@@ -196,6 +196,17 @@
 
     function spin() {
         if (items.length < 2 || isSpinning) return;
+
+        // --- 這裡就是添加的地方：解鎖瀏覽器音頻限制 ---
+        tickSound.play().then(() => { tickSound.pause(); tickSound.currentTime = 0; }).catch(() => {});
+        winSound.play().then(() => { winSound.pause(); winSound.currentTime = 0; }).catch(() => {});
+        // ------------------------------------------
+
+        isSpinning = true;
+        const prize = document.getElementById('prizeName').value;
+        const spinBtn = document.getElementById('spinBtn');
+        // ... 以下原本的內容不變
+        if (items.length < 2 || isSpinning) return;
         isSpinning = true;
         const prize = document.getElementById('prizeName').value;
         const spinBtn = document.getElementById('spinBtn');
